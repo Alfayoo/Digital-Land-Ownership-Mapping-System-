@@ -352,6 +352,34 @@
           mapTypeId: "hybrid",
         });
 
+         // Try to get user's location
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+
+        // Center map on user location
+        map.setCenter(userLocation);
+
+        // Optional: Add a marker at user location
+        new google.maps.Marker({
+          position: userLocation,
+          map: map,
+          title: "You are here!",
+          icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+        });
+      },
+      () => {
+        console.warn("Geolocation permission denied or unavailable.");
+      }
+    );
+  } else {
+    console.warn("Geolocation is not supported by this browser.");
+  }
+
         // Red center markers
         for (const county in counties) {
           new google.maps.Marker({
