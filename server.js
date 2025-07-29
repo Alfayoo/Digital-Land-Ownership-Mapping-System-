@@ -58,7 +58,7 @@ app.use(express.static(frontendDir)); // Serve static assets (CSS, JS, images) f
 // Catch-all route: For any GET request that hasn't matched an API route or a static file,
 // serve the loginAdmin.html. This makes it your application's entry point.
 app.get('*', (req, res) => {
-    res.sendFile(path.resolve(frontendDir, 'loginAdmin.html'));
+    res.sendFile(path.resolve(frontendDir, 'globe.html'));
 });
 // --- END Frontend Serving ---
 
