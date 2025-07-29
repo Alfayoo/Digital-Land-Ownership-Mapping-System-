@@ -121,6 +121,70 @@
       .hidden {
         display: none !important;
       }
+   /* Common modal overlay */
+.modal {
+  display: none; 
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Centered modal content with glass effect */
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 30px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  color: #fff;
+  width: 350px;
+  font-family: 'Segoe UI', sans-serif;
+  text-align: left;
+}
+
+/* Input styles */
+.modal-content input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0 20px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+/* Button group */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Button styles */
+.modal-content button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #043e13;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.modal-content button:hover {
+  background: #007a52;
+}
+
+
     </style>
   </head>
   <body>
@@ -212,42 +276,56 @@
         </button>
 
         <button onclick="openBuyModal()">Buy Land</button>
+        <!-- Buy Land Modal -->
+<div id="buyModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('buyModal')">&times;</span>
+    <h2>Buy Land</h2>
+    <form id="buyForm">
+      <label for="buyParcel">Parcel ID</label>
+      <input id="buyParcel" type="text" placeholder="e.g., KE-P1234" required>
+
+      <label for="buyValue">Offer Price (KES)</label>
+      <input id="buyValue" type="number" placeholder="e.g., 450000" required>
+
+      <label for="buyPhone">Phone Number</label>
+      <input id="buyPhone" type="tel" placeholder="e.g., 0712345678" required pattern="^07\d{8}$" title="Enter a valid Kenyan phone number (e.g., 0712345678)">
+
+      <button type="submit">Submit Offer</button>
+      <button type="button" onclick="closeBuyModal()">Cancel</button>
+    </form>
+  </div>
+</div>
         <!-- Sell Land Button -->
         <button onclick="openSellModal()">Sell Land</button>
 
-        <!-- Sell Land Modal -->
-        <div id="sellModal" class="modal">
-          <div class="modal-content">
-            <span class="close" onclick="closeSellModal()">&times;</span>
-            <h2>Sell Land</h2>
-            <input
-              type="text"
-              placeholder="County"
-              id="sellCounty"
-              style="width: 100%; padding: 8px; margin-bottom: 10px"
-            />
-            <input
-              type="text"
-              placeholder="Constituency"
-              id="sellConstituency"
-              style="width: 100%; padding: 8px; margin-bottom: 10px"
-            />
-            <input
-              type="number"
-              placeholder="Price in KES"
-              id="sellPrice"
-              style="width: 100%; padding: 8px; margin-bottom: 10px"
-            />
-            <input
-              type="text"
-              placeholder="Size (e.g. 1/8 acre)"
-              id="sellSize"
-              style="width: 100%; padding: 8px; margin-bottom: 10px"
-            />
-            <button onclick="submitSell()">Submit</button>
-            <button onclick="closeSellModal()">Cancel</button>
-          </div>
-        </div>
+<!-- SELL LAND MODAL -->
+<div id="sellModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('sellModal')">&times;</span>
+    <h2>Sell Land</h2>
+    <form id="sellForm">
+      <label for="sellParcel">Parcel ID</label>
+      <input id="sellParcel" type="text" placeholder="e.g., KE-P1234" required>
+
+      <label for="sellPhone">Phone Number</label>
+      <input id="sellPhone" type="tel" placeholder="e.g., 0712345678" required pattern="^07\d{8}$" title="Enter a valid Kenyan phone number (e.g., 0712345678)">
+
+      <label for="landSize">Land Size (in acres)</label>
+      <input id="landSize" type="number" step="0.01" placeholder="e.g., 2.5" required>
+
+      <label for="landValue">Value (KES)</label>
+      <input id="landValue" type="number" placeholder="e.g., 500000" required>
+
+      <button type="submit">Post for Sale</button>
+      <button type="button" onclick="closeSellModal()">Cancel</button>
+
+    </form>
+  </div>
+</div>
+
+
+
         <button onclick="zoomIn()">Zoom In</button>
         <button onclick="zoomOut()">Zoom Out</button>
         <!-- Admin Login & Support Buttons -->
@@ -268,341 +346,251 @@
         }, 2500); // Adjust duration (2.5 seconds)
       });
     </script>
-    <script>
-      // Function to search for a parcel by ID
-            async function searchParcel() {
-              const input = document.getElementById("parcelInput").value.trim();
+   <script>
+  let map;
+  const greenIcon = {
+    url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
+  };
+  const redIcon = {
+    url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+  };
+  const counties = {
+   Nairobi: { lat: -1.286389, lng: 36.817223 },
+  Mombasa: { lat: -4.043477, lng: 39.668206 },
+  Kisumu: { lat: -0.1022, lng: 34.7617 },
+  Nakuru: { lat: -0.3031, lng: 36.0800 },
+  Eldoret: { lat: 0.5204, lng: 35.2698 },
+  Machakos: { lat: -1.5167, lng: 37.2667 },
+  Kiambu: { lat: -1.0333, lng: 36.6500 },
+  Nyeri: { lat: -0.4167, lng: 36.9500 },
+  Muranga: { lat: -0.7167, lng: 37.1500 },
+  Meru: { lat: 0.0500, lng: 37.6500 },
+  Embu: { lat: -0.5333, lng: 37.4500 },
+  Kitui: { lat: -1.3667, lng: 38.0167 },
+  Garissa: { lat: -0.4531, lng: 39.6460 },
+  Wajir: { lat: 1.7500, lng: 40.0500 },
+  Mandera: { lat: 3.9373, lng: 41.8569 },
+  Marsabit: { lat: 2.3285, lng: 37.9899 },
+  Isiolo: { lat: 0.3546, lng: 37.5822 },
+  Turkana: { lat: 3.1167, lng: 35.5833 },
+  WestPokot: { lat: 1.2381, lng: 35.1239 },
+  Bungoma: { lat: 0.5685, lng: 34.5584 },
+  Busia: { lat: 0.4600, lng: 34.1100 },
+  Kakamega: { lat: 0.2833, lng: 34.7500 },
+  Vihiga: { lat: 0.0764, lng: 34.7071 },
+  Siaya: { lat: 0.1333, lng: 34.2500 },
+  HomaBay: { lat: -0.5273, lng: 34.4571 },
+  Migori: { lat: -1.0634, lng: 34.4731 },
+  Kisii: { lat: -0.6833, lng: 34.7833 },
+  Nyamira: { lat: -0.5705, lng: 34.9355 },
+  Bomet: { lat: -0.7833, lng: 35.3500 },
+  Kericho: { lat: -0.3667, lng: 35.2833 },
+  Nandi: { lat: 0.2000, lng: 35.1667 },
+  UasinGishu: { lat: 0.4534, lng: 35.3326 },
+  ElgeyoMarakwet: { lat: 1.0833, lng: 35.4500 },
+  TransNzoia: { lat: 1.0333, lng: 34.9833 },
+  Baringo: { lat: 0.4667, lng: 36.1000 },
+  Laikipia: { lat: 0.2833, lng: 36.4500 },
+  Nakuru: { lat: -0.2833, lng: 36.0667 },
+  Narok: { lat: -1.0833, lng: 35.8667 },
+  Kajiado: { lat: -1.8500, lng: 36.7833 },
+  Kericho: { lat: -0.3676, lng: 35.2836 },
+  Bomet: { lat: -0.7813, lng: 35.3413 },
+  Kwale: { lat: -4.1833, lng: 39.4500 },
+  Kilifi: { lat: -3.6333, lng: 39.8500 },
+  TanaRiver: { lat: -1.1667, lng: 40.0000 },
+  TaitaTaveta: { lat: -3.3167, lng: 38.4833 },
+  Lamu: { lat: -2.2717, lng: 40.9020 },
+  Samburu: { lat: 1.0833, lng: 37.0833 },
+  TharakaNithi: { lat: -0.3167, lng: 38.0167 }
 
-              if (!input) {
-                alert("Please enter a Parcel ID.");
-                return;
-              }
+  };
 
-              try {
-                const res = await fetch(`http://localhost:5000/api/parcels/${input}`);
-                if (!res.ok) {
-                  throw new Error("Parcel not found");
-                }
+  const countyCodes = {
+    Nairobi: "NAI",
+  Mombasa: "MOM",
+  Kisumu: "KSM",
+  Nakuru: "NAK",
+  Eldoret: "ELD",
+  Machakos: "MAC",
+  Kiambu: "KIA",
+  Nyeri: "NYE",
+  Muranga: "MUR",
+  Meru: "MER",
+  Embu: "EMB",
+  Kitui: "KIT",
+  Garissa: "GAR",
+  Wajir: "WAJ",
+  Mandera: "MAN",
+  Marsabit: "MAR",
+  Isiolo: "ISI",
+  Turkana: "TUR",
+  WestPokot: "WPK",
+  Bungoma: "BUN",
+  Busia: "BUS",
+  Kakamega: "KAK",
+  Vihiga: "VIH",
+  Siaya: "SIA",
+  HomaBay: "HOM",
+  Migori: "MIG",
+  Kisii: "KIS",
+  Nyamira: "NYA",
+  Bomet: "BOM",
+  Kericho: "KER",
+  Nandi: "NAN",
+  UasinGishu: "UAS",
+  ElgeyoMarakwet: "ELG",
+  TransNzoia: "TRA",
+  Baringo: "BAR",
+  Laikipia: "LAI",
+  Narok: "NAR",
+  Kajiado: "KAJ",
+  Kwale: "KWA",
+  Kilifi: "KIL",
+  TanaRiver: "TAN",
+  TaitaTaveta: "TAI",
+  Lamu: "LAM",
+  Samburu: "SAM",
+  TharakaNithi: "THA"
+ 
+  
+  };
 
-                const data = await res.json();
+  const landsForSale = [];
+  const parcelMarkers = {};
 
-                if (data.latitude && data.longitude) {
-                  // Zoom to parcel location
-                  map.setCenter({ lat: data.latitude, lng: data.longitude });
-                  map.setZoom(18);
+  function initMap() {
+    map = new google.maps.Map(document.getElementById("map"), {
+      center: { lat: 0, lng: 0 },
+      zoom: 2,
+      mapTypeId: "hybrid",
+    });
 
-                  // Add marker for the parcel
-                  const marker = new google.maps.Marker({
-                    position: { lat: data.latitude, lng: data.longitude },
-                    map,
-                    title: `Parcel ${data.parcelId}`,
-                    icon: {
-                      url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                    },
-                  });
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          map.setCenter(userLocation);
+          map.setZoom(30);
 
-                  const info = new google.maps.InfoWindow({
-                    content: `
-                <strong>Parcel ID:</strong> ${data.parcelId}<br>
-                <strong>County:</strong> ${data.county}
-              `,
-                  });
-
-                  marker.addListener("click", () => info.open(map, marker));
-                  info.open(map, marker);
-                } else {
-                  alert("Coordinates for this parcel are missing.");
-                }
-              } catch (err) {
-                console.error(err);
-                alert("Parcel not found or server error.");
-              }
-            }
-
-
-
-
-            let map;
-            const counties = {
-              baringo: { lat: 0.4646, lng: 35.7436 },
-              bomet: { lat: -0.7821, lng: 35.3398 },
-              bungoma: { lat: 0.5689, lng: 34.5584 },
-              busia: { lat: 0.4347, lng: 34.2422 },
-              "elgeyo marakwet": { lat: 1.0497, lng: 35.478 },
-              embu: { lat: -0.656, lng: 37.7238 },
-              garissa: { lat: -0.4532, lng: 39.646 },
-              "homa bay": { lat: -0.5273, lng: 34.457 },
-              isiolo: { lat: 0.3557, lng: 37.5822 },
-              kajiado: { lat: -1.8536, lng: 36.7763 },
-              kakamega: { lat: 0.2827, lng: 34.7519 },
-              kericho: { lat: -0.3671, lng: 35.2836 },
-              kiambu: { lat: -1.041, lng: 36.8681 },
-              kilifi: { lat: -3.5105, lng: 39.9093 },
-              kirinyaga: { lat: -0.6591, lng: 37.3827 },
-              kisii: { lat: -0.6773, lng: 34.7795 },
-              kisumu: { lat: -0.0917, lng: 34.7679 },
-              kitui: { lat: -1.367, lng: 38.0106 },
-              kwale: { lat: -4.1833, lng: 39.45 },
-              laikipia: { lat: 0.3606, lng: 36.6984 },
-              lamu: { lat: -2.228, lng: 40.9006 },
-              machakos: { lat: -1.5177, lng: 37.2634 },
-              makueni: { lat: -1.8041, lng: 37.6282 },
-              mandera: { lat: 3.9373, lng: 41.8569 },
-              meru: { lat: 0.3557, lng: 37.717 },
-              migori: { lat: -1.0634, lng: 34.4731 },
-              marsabit: { lat: 2.3399, lng: 37.9994 },
-              mombasa: { lat: -4.0435, lng: 39.6682 },
-              "murang'a": { lat: -0.7184, lng: 37.1406 },
-              nairobi: { lat: -1.286389, lng: 36.817223 },
-              nakuru: { lat: -0.3031, lng: 36.08 },
-              nandi: { lat: 0.1145, lng: 35.3582 },
-              narok: { lat: -1.1041, lng: 35.871 },
-              nyamira: { lat: -0.5742, lng: 34.936 },
-              nyandarua: { lat: -0.1806, lng: 36.5566 },
-              nyeri: { lat: -0.4197, lng: 36.9476 },
-              samburu: { lat: 1.2598, lng: 36.742 },
-              siaya: { lat: 0.0612, lng: 34.2422 },
-              "taita taveta": { lat: -3.3161, lng: 38.485 },
-              "tana river": { lat: -1.2886, lng: 40.1169 },
-              "tharaka nithi": { lat: -0.1841, lng: 37.9445 },
-              "trans nzoia": { lat: 1.0556, lng: 34.95 },
-              turkana: { lat: 3.3124, lng: 35.5658 },
-              "uasin gishu": { lat: 0.3347, lng: 35.5372 },
-              vihiga: { lat: 0.0741, lng: 34.7192 },
-              wajir: { lat: 1.7504, lng: 40.0509 },
-              "west pokot": { lat: 1.2891, lng: 35.1436 },
-            };
-
-            const greenIcon = {
-              url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
-            };
-
-            const landsForSale = [
-              { id: 1, location: "Kajiado", size: "1 Acre", price: "Ksh 850,000" },
-              {
-                id: 2,
-                location: "Kitengela",
-                size: "1/2 Acre",
-                price: "Ksh 450,000",
-              },
-              { id: 3, location: "Nakuru", size: "1/4 Acre", price: "Ksh 320,000" },
-            ];
-
-             function initMap() {
-          // Initialize map with default center and map type
-          map = new google.maps.Map(document.getElementById("map"), {
-            center: { lat: 0, lng: 0 },
-            zoom: 2,
-            mapTypeId: 'hybrid',
+          new google.maps.Marker({
+            position: userLocation,
+            map,
+            title: "You are here",
+            icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
           });
+        },
+        () => alert("Location access denied or unavailable.")
+      );
+    }
 
-          // Try to get user location
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              (position) => {
-                const userLocation = {
-                  lat: position.coords.latitude,
-                  lng: position.coords.longitude,
-                };
+    for (const county in counties) {
+      const center = counties[county];
+      const code = countyCodes[county] || county.substring(0, 3).toUpperCase();
 
-                // Center map on user's location
-                map.setCenter(userLocation);
-                map.setZoom(15);
+      new google.maps.Marker({
+        position: center,
+        map,
+        icon: redIcon,
+        title: `${county.charAt(0).toUpperCase() + county.slice(1)} (County HQ)`,
+      });
 
-                // Add "You are here" marker
-                new google.maps.Marker({
-                  position: userLocation,
-                  map: map,
-                  title: "You are here",
-                });
-              },
-              () => {
-                alert("Location access denied or unavailable.");
-              }
-            );
-          } else {
-            alert("Geolocation is not supported by this browser.");
-          }
-        }
-               // Try to get user's location
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const userLocation = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-              };
+      for (let i = 0; i < 5; i++) {
+        const latOffset = (Math.random() - 0.5) * 0.1;
+        const lngOffset = (Math.random() - 0.5) * 0.1;
+        const size = `${Math.floor(Math.random() * 3 + 1)} Acre(s)`;
+        const price = `Ksh ${Math.floor(Math.random() * 1000000 + 300000)}`;
+        const phone = `07${Math.floor(1000000 + Math.random() * 8999999)}`;
+        const ref = `${code}${String(i + 11).padStart(3, "0")}`;
 
+        const pos = {
+          lat: center.lat + latOffset,
+          lng: center.lng + lngOffset,
+        };
 
-              // Center map on user location
-              map.setCenter(userLocation);
+        const marker = new google.maps.Marker({
+          position: pos,
+          map,
+          icon: greenIcon,
+          title: `${size}, ${price}`,
+        });
 
-              // Optional: Add a marker at user location
-              new google.maps.Marker({
-                position: userLocation,
-                map: map,
-                title: "You are here!",
-                icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-              });
-            },
-            () => {
-              console.warn("Geolocation permission denied or unavailable.");
-            }
-          );
-        } else {
-          console.warn("Geolocation is not supported by this browser.");
-        }
+        const info = new google.maps.InfoWindow({
+          content: `
+            <div>
+              <strong>Size:</strong> ${size}<br>
+              <strong>Price:</strong> ${price}<br>
+              <strong>Seller:</strong> ${phone}<br>
+              <strong>Parcel ID:</strong> ${ref}
+            </div>
+          `,
+        });
 
+        marker.addListener("click", () => info.open(map, marker));
+        marker.addListener("mouseover", () => info.open(map, marker));
+        marker.addListener("mouseout", () => info.close());
 
-              // Red center markers
-              for (const county in counties) {
-                new google.maps.Marker({
-                  position: counties[county],
-                  map,
-                  title: county.charAt(0).toUpperCase() + county.slice(1),
-                  icon: {
-                    url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
-                    scaledSize: new google.maps.Size(50, 50),
-                  },
-                });
-              }
+        parcelMarkers[ref] = { marker, pos };
+      }
+    }
 
-              // County dropdown
-              const dropdown = document.getElementById("countyDropdown");
-              for (const county in counties) {
-                const option = document.createElement("option");
-                option.value = county;
-                option.textContent = county.charAt(0).toUpperCase() + county.slice(1);
-                dropdown.appendChild(option);
-              }
+    const dropdown = document.getElementById("countyDropdown");
+    for (const county in counties) {
+      const option = document.createElement("option");
+      option.value = county;
+      option.textContent = county.charAt(0).toUpperCase() + county.slice(1);
+      dropdown.appendChild(option);
+    }
+  }
 
-              // Add dummy plot markers
-              for (const county in counties) {
-                const center = counties[county];
-                for (let i = 0; i < 5; i++) {
-                  const latOffset = (Math.random() - 0.5) * 0.1;
-                  const lngOffset = (Math.random() - 0.5) * 0.1;
-                  const size = `${Math.floor(Math.random() * 3 + 1)} Acre(s)`;
-                  const price = `Ksh ${Math.floor(Math.random() * 1000000 + 300000)}`;
-                  const phone =
-                    `07${Math.floor(10000000 + Math.random() * 89999999)}`;
-                  const ref = `TLD-${Math.floor(1000 + Math.random() * 9000)}`;
+  function searchParcel() {
+    const input = document.getElementById("parcelInput").value.trim();
+    if (!input) return alert("Please enter a Parcel ID.");
 
-                  const marker = new google.maps.Marker({
-                    position: {
-                      lat: center.lat + latOffset,
-                      lng: center.lng + lngOffset,
-                    },
-                    map,
-                    icon: greenIcon,
-                    title: `${size}, ${price}`,
-                  });
+    const result = parcelMarkers[input];
+    if (!result) return alert("Parcel not found.");
 
-                  const info = new google.maps.InfoWindow({
-                    content: `
-                <div>
-                  <strong>Size:</strong> ${size}<br>
-                  <strong>Price:</strong> ${price}<br>
-                  <strong>Seller:</strong> ${phone}<br>
-                  <strong>Ref:</strong> ${ref}
-                </div>
-              `,
-                  });
+    map.setCenter(result.pos);
+    map.setZoom(18);
+    google.maps.event.trigger(result.marker, "click");
+  }
 
-                  marker.addListener("mouseover", () => info.open(map, marker));
-                  marker.addListener("mouseout", () => info.close());
-                }
-              }
-            
+  function goToCounty() {
+    const selected = document.getElementById("countyDropdown").value;
+    if (counties[selected]) {
+      map.setCenter(counties[selected]);
+      map.setZoom(10);
+    }
+  }
 
-            function goToCounty() {
-              const selected = document.getElementById("countyDropdown").value;
-              if (counties[selected]) {
-                map.setCenter(counties[selected]);
-                map.setZoom(10);
-              }
-            }
+  function zoomIn() {
+    map.setZoom(map.getZoom() + 1);
+  }
 
-            function zoomIn() {
-              map.setZoom(map.getZoom() + 1);
-            }
+  function zoomOut() {
+    map.setZoom(map.getZoom() - 1);
+  }
+</script>
+<script>
+ function openSellModal() {
+  document.getElementById("sellModal").style.display = "flex";
+}
+function closeSellModal() {
+  document.getElementById("sellModal").style.display = "none";
+}
+function openBuyModal() {
+  document.getElementById("buyModal").style.display = "flex";
+}
+function closeBuyModal() {
+  document.getElementById("buyModal").style.display = "none";
+}
 
-            function zoomOut() {
-              map.setZoom(map.getZoom() - 1);
-            }
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBK1h-QvnaLDOvRqz9cRDrCShpDAMzae-U&callback=initMap" async defer></script>
 
-            function openBuyModal() {
-              const list = document.getElementById("landList");
-              list.innerHTML = "";
-
-              landsForSale.forEach((land) => {
-                const div = document.createElement("div");
-                div.className = "land-item";
-                div.textContent = "${land.location} – ${land.size} – ${land.price}";
-                div.onclick = () => {
-                  document
-                    .querySelectorAll(".land-item")
-                    .forEach((item) => item.classList.remove("selected"));
-                  div.classList.add("selected");
-                  div.setAttribute("data-id", land.id);
-                };
-                list.appendChild(div);
-              });
-
-              document.getElementById("buyModal").style.display = "block";
-            }
-
-            function closeBuyModal() {
-              document.getElementById("buyModal").style.display = "none";
-            }
-
-            function sendRequest() {
-              const selected = document.querySelector(".land-item.selected");
-              const phone = document.getElementById("buyerPhone").value.trim();
-
-              if (!selected) {
-                alert("Please select a land option.");
-                return;
-              }
-
-              if (!phone || phone.length < 9) {
-                alert("Enter a valid phone number.");
-                return;
-              }
-
-              const landId = selected.getAttribute("data-id");
-              const land = landsForSale.find((l) => l.id == landId);
-
-              alert(
-                "Your request to buy ${land.size} in ${land.location} at ${land.price} has been sent! We’ll contact you on ${phone}."
-              );
-
-              closeBuyModal();
-            }
-            function openSellModal() {
-              document.getElementById("sellModal").style.display = "block";
-            }
-
-            function closeSellModal() {
-              document.getElementById("sellModal").style.display = "none";
-            }
-
-            function submitSell() {
-              const county = document.getElementById("sellCounty").value;
-              const constituency = document.getElementById("sellConstituency").value;
-              const price = document.getElementById("sellPrice").value;
-              const size = document.getElementById("sellSize").value;
-
-              if (county && constituency && price && size) {
-                alert(
-                  "Land listed successfully!\nCounty: ${county}\nConstituency: ${constituency}\nPrice: ${price}\nSize: ${size}"
-                );
-                closeSellModal();
-              } else {
-                alert("Please fill in all fields.");
-              }
-            }
-    </script>
 
     <!-- Replace this API key with your own for production use -->
     <script
@@ -614,59 +602,7 @@
         defer
       >
     </script>
-    <!-- Buy Land Modal -->
-    <div id="buyModal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="closeBuyModal()">&times;</span>
-        <h2 style="margin-top: 0">Available Lands for Sale</h2>
-        <div id="landList" class="land-list">
-          <!-- Dummy data injected by JS -->
-        </div>
-        <input
-          type="text"
-          id="buyerPhone"
-          placeholder="Enter your phone number"
-          style="
-            margin-top: 10px;
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-          "
-        />
-        <div
-          style="
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
-          "
-        >
-          <button
-            onclick="sendRequest()"
-            style="
-              background: green;
-              color: white;
-              padding: 8px 16px;
-              border: none;
-              border-radius: 5px;
-            "
-          >
-            Request to Buy
-          </button>
-          <button
-            onclick="closeBuyModal()"
-            style="
-              background: gray;
-              color: white;
-              padding: 8px 16px;
-              border: none;
-              border-radius: 5px;
-            "
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
+   
     <!-- Support Modal -->
 <div id="supportModal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6);">
   <div style="background-color: rgb(240, 244, 241); margin: 15% auto; padding: 20px; border-radius: 8px; width: 300px; text-align: center;">
