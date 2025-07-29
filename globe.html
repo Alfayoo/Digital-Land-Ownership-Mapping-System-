@@ -45,7 +45,7 @@
       }
 
       .sidebar button:hover {
-        background-color: #ff9900;
+        background-color: #4e4d4f;
       }
 
       #map {
@@ -150,17 +150,7 @@
         />
 
         <h3>Go To:</h3>
-        <input
-          type="text"
-          id="parcelInput"
-          placeholder="Enter Parcel ID"
-          style="width: 100%; padding: 8px; margin-top: 10px"
-        />
-        <button onclick="searchParcel()" style="width: 100%; margin-top: 5px">
-          Search Parcel
-        </button>
-
-        <select id="countyDropdown" onchange="goToCounty()">
+         <select id="countyDropdown" onchange="goToCounty()">
           <option value="">-- Select County --</option>
           <option value="baringo">Baringo</option>
           <option value="bomet">Bomet</option>
@@ -210,6 +200,19 @@
           <option value="wajir">Wajir</option>
           <option value="west pokot">West Pokot</option>
         </select>
+        <input
+          type="text"
+          id="parcelInput"
+          placeholder="Enter Parcel ID"
+          style="width: 100%; padding: 8px; margin-top: 10px"
+        />
+        
+        <button onclick="searchParcel()" style="width: 100%; margin-top: 5px">
+          Search Parcel
+        </button>
+        
+
+       
         <button onclick="openBuyModal()">Buy Land</button>
         <!-- Sell Land Button -->
         <button onclick="openSellModal()">Sell Land</button>

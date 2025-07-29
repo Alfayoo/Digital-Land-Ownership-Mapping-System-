@@ -83,13 +83,32 @@
     }
 
     button:hover {
-      background: #e37300;
+      background: #044e0a;
     }
 
     #loginError {
       color: red;
       margin-top: 10px;
     }
+    .login-box {
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.1); /* semi-transparent */
+  backdrop-filter: blur(px); /* glass effect */
+  -webkit-backdrop-filter: blur(px);
+  padding: 40px 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  width: 500px;
+  text-align: center;
+  margin: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.3); /* optional white border */
+}
+.login-box h2 {
+  color: white;
+}
   </style>
 </head>
 <body>
