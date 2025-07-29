@@ -47,7 +47,8 @@ const LandParcelSchema = new mongoose.Schema({
         required: true // A parcel must be registered by a user
     }
 }, {
-    timestamps: true // Mongoose automatically manages `createdAt` and `updatedAt`
+    timestamps: true, // Mongoose automatically manages `createdAt` and `updatedAt`
+    collection: 'parcels' // <--- ADDED THIS LINE to explicitly set collection name
 });
 
 // --- Mongoose Indexes ---

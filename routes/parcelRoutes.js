@@ -36,7 +36,7 @@ const isGeoJSONPolygon = (value) => {
 // @route   GET /api/parcels/spatial/within-bbox
 // @desc    Find parcels within a given bounding box (for map view display)
 // @access  Private (Accessible by all authenticated users)
-router.get('/spatial/within-bbox', protect, async (req, res) => {
+router.get('/spatial/within-bbox', async (req, res) => {
     const { minLon, minLat, maxLon, maxLat } = req.query;
 
     if (!minLon || !minLat || !maxLon || !maxLat) {
@@ -136,7 +136,7 @@ router.post(
 // @route   GET /api/parcels
 // @desc    Get all land parcels (with optional search and filter)
 // @access  Private (Accessible by all authenticated users)
-router.get('/', protect, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const { search, status } = req.query;
         let query = {};
@@ -210,18 +210,28 @@ router.post(
 // @route   GET /api/parcels/:id
 // @desc    Get a single land parcel by its parcelId
 // @access  Private (Accessible by all authenticated users)
-router.get('/:id', protect, async (req, res) => {
-    try {
-        const parcel = await LandParcel.findOne({ parcelId: req.params.id }).populate('registeredBy', 'username role email');
-        if (!parcel) {
-            return res.status(404).json({ message: 'Land parcel not found' });
-        }
-        res.json(parcel);
-    } catch (error) {
-        console.error('Error fetching single parcel:', error.message);
-        res.status(500).json({ message: 'Server error fetching parcel' });
+router.get("/:parcelId", async (req, res) => {
+  const rawId = req.params.parcelId;
+  console.log('Received raw parcelId:', rawId); // Log raw input
+  const normalizedId = rawId.trim().replace(/\s+/g, '').toUpperCase();
+  console.log('Normalized parcelId for query:', normalizedId); // Log normalized ID
+
+  try {
+    const parcel = await LandParcel.findOne({
+      parcelId: { $regex: `^${normalizedId}$`, $options: 'i' }
+    });
+    console.log('MongoDB query result:', parcel); // Log the result of the query
+
+    if (!parcel) {
+      return res.status(404).json({ message: "Parcel not found" });
     }
+    res.json(parcel);
+  } catch (error) {
+    console.error('Error fetching single parcel:', error.message);
+    res.status(500).json({ message: "Server error" });
+  }
 });
+
 
 // @route   PUT /api/parcels/:id
 // @desc    Update an existing land parcel by its parcelId
