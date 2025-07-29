@@ -14,8 +14,11 @@ const baseCoords = {
   Marsabit: { lat: 2.3333, lng: 37.9833 },
   Isiolo: { lat: 0.3500, lng: 37.5833 },
   Wajir: { lat: 1.7500, lng: 40.0500 },
-  Mombasa: { lat: -4.0435, lng: 39.6682 }
+  Mombasa: { lat: -4.0435, lng: 39.6682 },
+  Nairobi: { lat: -1.2864, lng: 36.8172 },
+  Kakamega: { lat: 0.2833, lng: 34.7500 }  
 };
+
 
 async function generateParcels() {
   try {
@@ -44,7 +47,7 @@ async function generateParcels() {
     }
 
     await Parcel.insertMany(parcels);
-    console.log("✅ 100 parcels inserted successfully.");
+    console.log("✅ 120 parcels inserted successfully.");
   } catch (err) {
     console.error("❌ Error inserting parcels:", err);
   } finally {
