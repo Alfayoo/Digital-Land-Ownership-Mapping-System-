@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard - Track Lands</title>
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #fff;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+    }
+
+    .sidebar {
+      width: 300px;
+      background-color: #1e1e1e;
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    .hero-section {
+      margin-bottom: 20px;
+      border-bottom: 1px solid #444;
+      padding-bottom: 15px;
+    }
+
+    .hero-section h3 {
+      margin: 0 0 10px;
+    }
+
+    .hero-section img {
+      width: 100%;
+      max-width: 200px;
+      display: block;
+      margin: 10px 0;
+    }
+
+    .hero-section h2 {
+      margin-top: 15px;
+      font-size: 20px;
+      border-bottom: 1px solid #555;
+      padding-bottom: 5px;
+    }
+
+    select, button {
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    button:hover, select:hover {
+      background-color: #444;
+    }
+
+    #map {
+      flex-grow: 1;
+      background-color: #222;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 24px;
+    }
+
+    /* Modals */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.7);
+    }
+
+    .modal-content {
+      background-color: #2c2c2c;
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid #444;
+      width: 90%;
+      max-width: 500px;
+      color: white;
+      border-radius: 10px;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: red;
+    }
+
+    /* Log Out Button */
+    .logout-btn {
+      margin-top: auto;
+      background-color: #c0392b;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: auto;
+      }
+      #map {
+        height: 300px;
+      }
+    }
+    #track-logo {
+  width: 500px;
+  margin-bottom: 20px;
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="hero-section">
+        <h3>Welcome Admin To:</h3>
+        <img id="track-logo" src="Screenshot 2025-07-27 210037.png" alt="Track Lands Logo" />
+        <h2>Control Panel</h2>
+      </div>
+
+      <h3>Go To:</h3>
+      <select id="countyDropdown" onchange="goToCounty()">
+        <option value="">-- Select County --</option>
+         <option value="baringo">Baringo</option>
+  <option value="bomet">Bomet</option>
+  <option value="bungoma">Bungoma</option>
+  <option value="busia">Busia</option>
+  <option value="elgeyo marakwet">Elgeyo Marakwet</option>
+  <option value="embu">Embu</option>
+  <option value="garissa">Garissa</option>
+  <option value="homa bay">Homa Bay</option>
+  <option value="isiolo">Isiolo</option>
+  <option value="kajiado">Kajiado</option>
+  <option value="kakamega">Kakamega</option>
+  <option value="kericho">Kericho</option>
+  <option value="kiambu">Kiambu</option>
+  <option value="kilifi">Kilifi</option>
+  <option value="kirinyaga">Kirinyaga</option>
+  <option value="kisii">Kisii</option>
+  <option value="kisumu">Kisumu</option>
+  <option value="kitui">Kitui</option>
+  <option value="kwale">Kwale</option>
+  <option value="laikipia">Laikipia</option>
+  <option value="lamu">Lamu</option>
+  <option value="machakos">Machakos</option>
+  <option value="makueni">Makueni</option>
+  <option value="mandera">Mandera</option>
+  <option value="marsabit">Marsabit</option>
+  <option value="meru">Meru</option>
+  <option value="migori">Migori</option>
+  <option value="mombasa">Mombasa</option>
+  <option value="muranga">Murang'a</option>
+  <option value="nairobi">Nairobi</option>
+  <option value="nakuru">Nakuru</option>
+  <option value="nandi">Nandi</option>
+  <option value="narok">Narok</option>
+  <option value="nyamira">Nyamira</option>
+  <option value="nyandarua">Nyandarua</option>
+  <option value="nyeri">Nyeri</option>
+  <option value="samburu">Samburu</option>
+  <option value="siaya">Siaya</option>
+  <option value="taita taveta">Taita Taveta</option>
+  <option value="tana river">Tana River</option>
+  <option value="tharaka nithi">Tharaka Nithi</option>
+  <option value="trans nzoia">Trans Nzoia</option>
+  <option value="turkana">Turkana</option>
+  <option value="uasin gishu">Uasin Gishu</option>
+  <option value="vihiga">Vihiga</option>
+  <option value="wajir">Wajir</option>
+  <option value="west pokot">West Pokot</option>
+      </select>
+
+      <button onclick="openBuyersModal()">Manage Buyers</button>
+      <button onclick="openSellersModal()">Manage Sellers</button>
+      <button onclick="zoomIn()">Zoom In</button>
+      <button onclick="zoomOut()">Zoom Out</button>
+      <button class="logout-btn" onclick="logout()">Log Out</button>
+    </div>
+
+  <!-- Map Section -->
+<div id="map"></div>
+
+
+
+  
+   <!-- Buyers Modal -->
+  <div id="buyersModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeBuyersModal()">&times;</span>
+      <h2>Manage Buyers</h2>
+      <p>Here you can view, edit or remove buyer requests.</p>
+    </div>
+  </div>
+
+ <!-- Manage Sellers Modal -->
+<div id="manageSellersModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('manageSellersModal')">&times;</span>
+    <h2>Manage Sellers</h2>
+
+    <div id="sellerList" style="max-height: 400px; overflow-y: auto; margin-top: 20px;"></div>
+  </div>
+</div>
+
+  <!-- Sellers Modal -->
+  <div id="sellersModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeSellersModal()">&times;</span>
+      <h2>Manage Sellers</h2>
+      <p>Here you can view, verify or remove land listings.</p>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+ <script>
+  let map;
+  const countyCoordinates = {
+    "baringo": { lat: 0.4646, lng: 35.7436 },
+    "bomet": { lat: -0.7821, lng: 35.3398 },
+    "bungoma": { lat: 0.5689, lng: 34.5584 },
+    "busia": { lat: 0.4347, lng: 34.2422 },
+    "elgeyo marakwet": { lat: 1.0497, lng: 35.4780 },
+    "embu": { lat: -0.6560, lng: 37.7238 },
+    "garissa": { lat: -0.4532, lng: 39.6460 },
+    "homa bay": { lat: -0.5273, lng: 34.4570 },
+    "isiolo": { lat: 0.3557, lng: 37.5822 },
+    "kajiado": { lat: -1.8536, lng: 36.7763 },
+    "kakamega": { lat: 0.2827, lng: 34.7519 },
+    "kericho": { lat: -0.3671, lng: 35.2836 },
+    "kiambu": { lat: -1.0410, lng: 36.8681 },
+    "kilifi": { lat: -3.5105, lng: 39.9093 },
+    "kirinyaga": { lat: -0.6591, lng: 37.3827 },
+    "kisii": { lat: -0.6773, lng: 34.7795 },
+    "kisumu": { lat: -0.0917, lng: 34.7679 },
+    "kitui": { lat: -1.3670, lng: 38.0106 },
+    "kwale": { lat: -4.1833, lng: 39.4500 },
+    "laikipia": { lat: 0.3606, lng: 36.6984 },
+    "lamu": { lat: -2.2280, lng: 40.9006 },
+    "machakos": { lat: -1.5177, lng: 37.2634 },
+    "makueni": { lat: -1.8041, lng: 37.6282 },
+    "mandera": { lat: 3.9373, lng: 41.8569 },
+    "meru": { lat: 0.3557, lng: 37.7170 },
+    "migori": { lat: -1.0634, lng: 34.4731 },
+    "marsabit": { lat: 2.3399, lng: 37.9994 },
+    "mombasa": { lat: -4.0435, lng: 39.6682 },
+    "murang'a": { lat: -0.7184, lng: 37.1406 },
+    "nairobi": { lat: -1.286389, lng: 36.817223 },
+    "nakuru": { lat: -0.3031, lng: 36.0800 },
+    "nandi": { lat: 0.1145, lng: 35.3582 },
+    "narok": { lat: -1.1041, lng: 35.8710 },
+    "nyamira": { lat: -0.5742, lng: 34.9360 },
+    "nyandarua": { lat: -0.1806, lng: 36.5566 },
+    "nyeri": { lat: -0.4197, lng: 36.9476 },
+    "samburu": { lat: 1.2598, lng: 36.7420 },
+    "siaya": { lat: 0.0612, lng: 34.2422 },
+    "taita taveta": { lat: -3.3161, lng: 38.4850 },
+    "tana river": { lat: -1.2886, lng: 40.1169 },
+    "tharaka nithi": { lat: -0.1841, lng: 37.9445 },
+    "trans nzoia": { lat: 1.0556, lng: 34.9500 },
+    "turkana": { lat: 3.3124, lng: 35.5658 },
+    "uasin gishu": { lat: 0.3347, lng: 35.5372 },
+    "vihiga": { lat: 0.0741, lng: 34.7192 },
+    "wajir": { lat: 1.7504, lng: 40.0509 },
+    "west pokot": { lat: 1.2891, lng: 35.1436 }
+  };
+
+  let marker;
+
+  function initMap() {
+    map = new google.maps.Map(document.getElementById("map"), {
+      center: { lat: -1.286389, lng: 36.817223 },
+      zoom: 7,
+      styles: [
+        {
+          featureType: "all",
+          elementType: "labels.text.fill",
+          stylers: [{ color: "#ffffff" }]
+        }
+      ]
+    });
+  }
+
+  function goToCounty() {
+    const county = document.getElementById("countyDropdown").value.toLowerCase();
+    const location = countyCoordinates[county];
+
+    if (location) {
+      map.panTo(location);
+      map.setZoom(10);
+
+      if (marker) marker.setMap(null);
+
+      marker = new google.maps.Marker({
+        position: location,
+        map: map,
+        title: county.charAt(0).toUpperCase() + county.slice(1),
+        animation: google.maps.Animation.BOUNCE
+      });
+
+      setTimeout(() => marker.setAnimation(null), 1400);
+    } else {
+      alert("Coordinates not available for: " + county);
+    }
+  }
+
+  function openBuyersModal() {
+    document.getElementById("buyersModal").style.display = "block";
+  }
+
+  function closeBuyersModal() {
+    document.getElementById("buyersModal").style.display = "none";
+  }
+
+  function openSellersModal() {
+    document.getElementById("sellersModal").style.display = "block";
+    showSellersInModal(); // Call when modal opens
+  }
+
+  function closeSellersModal() {
+    document.getElementById("sellersModal").style.display = "none";
+  }
+
+  function zoomIn() {
+    map.setZoom(map.getZoom() + 1);
+  }
+
+  function zoomOut() {
+    map.setZoom(map.getZoom() - 1);
+  }
+
+  function logout() {
+    alert("Logging out...");
+    window.location.href = "loginAdmin.html";
+  }
+
+  // -------------------- Sellers ----------------------
+  const counties = Object.keys(countyCoordinates);
+  const sellers = [];
+
+  function generateDummySellers() {
+    counties.forEach((county) => {
+      for (let i = 1; i <= 10; i++) {
+        const seller = {
+          name: 'Seller ${i} - ${county}',
+          county,
+          lands: []
+        };
+        for (let j = 1; j <= 10; j++) {
+          seller.lands.push({
+            title: 'Land ${j}',
+            size: '${Math.floor(Math.random() * 10) + 1} acres',
+            price: 'KSh ${Math.floor(Math.random() * 900000) + 100000}'
+          });
+        }
+        sellers.push(seller);
+      }
+    });
+  }
+
+  function showSellersInModal() {
+    const container = document.getElementById("sellerList");
+    container.innerHTML = "";
+
+    sellers.forEach(seller => {
+      const sellerDiv = document.createElement("div");
+      sellerDiv.style.marginBottom = "20px";
+      sellerDiv.innerHTML = `
+        <h4>${seller.name} (${seller.county})</h4>
+        <ul style="margin-left: 20px;">
+          ${seller.lands.map(land => `
+            <li>${land.title}: ${land.size}, <strong>${land.price}</strong></li>
+          `).join("")}
+        </ul>
+      `;
+      container.appendChild(sellerDiv);
+    });
+  }
+
+  generateDummySellers(); // Run once on load
+</script>
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBseZ25APvXF86V_ZciuACEPSLXaFQ82qI&callback=initMap">
+</script>
+</body>
+</html>
