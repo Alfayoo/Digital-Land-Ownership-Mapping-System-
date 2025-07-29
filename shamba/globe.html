@@ -16,6 +16,13 @@
         height: 100vh;
         width: 100%;
       }
+      #countyDropdown {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
 
       .sidebar {
         width: 300px;
@@ -30,22 +37,6 @@
         font-size: 24px;
         border-bottom: 1px solid #444;
         padding-bottom: 10px;
-      }
-
-      .sidebar button {
-        width: 100%;
-        padding: 10px;
-        margin-top: 10px;
-        background-color: rgb(7, 79, 17);
-        border: none;
-        color: white;
-        cursor: pointer;
-        font-size: 16px;
-        border-radius: 5px;
-      }
-
-      .sidebar button:hover {
-        background-color: #4e4d4f;
       }
       .sidebar-row {
         display: flex;
@@ -228,11 +219,13 @@
           <input type="text" id="parcelInput" placeholder="Parcel ID" />
           <button onclick="searchParcel()" class="half-button">Search</button>
         </div>
-
-        <button onclick="openBuyModal()" class="half-button">Buy Land</button>
-        <!-- Sell Land Button -->
-        <button onclick="openSellModal()" class="half-button">Sell Land</button>
-
+        <div class="sidebar-row">
+          <button onclick="openBuyModal()" class="half-button">Buy Land</button>
+          <!-- Sell Land Button -->
+          <button onclick="openSellModal()" class="half-button">
+            Sell Land
+          </button>
+        </div>
         <!-- Sell Land Modal -->
         <div id="sellModal" class="modal">
           <div class="modal-content">
@@ -266,8 +259,10 @@
             <button onclick="closeSellModal()">Cancel</button>
           </div>
         </div>
-        <button onclick="zoomIn()" class="half-button">Zoom In</button>
-        <button onclick="zoomOut()" class="half-button">Zoom Out</button>
+        <div class="sidebar-row">
+          <button onclick="zoomIn()" class="half-button">Zoom In</button>
+          <button onclick="zoomOut()" class="half-button">Zoom Out</button>
+        </div>
         <!-- Admin Login & Support Buttons -->
         <div
           style="
