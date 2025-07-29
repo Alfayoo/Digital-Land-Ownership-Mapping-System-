@@ -149,7 +149,7 @@
 
       <h3>Go To:</h3>
       <select id="countyDropdown" onchange="goToCounty()">
-        <option value="">-- Select County --</option>
+        <option value="">-- Search By County --</option>
          <option value="baringo">Baringo</option>
   <option value="bomet">Bomet</option>
   <option value="bungoma">Bungoma</option>
@@ -198,7 +198,16 @@
   <option value="wajir">Wajir</option>
   <option value="west pokot">West Pokot</option>
       </select>
+      <input
+          type="text"
+          id="parcelInput"
+          placeholder="Search by Parcel ID"
+          style="width: 100%; padding: 8px; margin-top: 10px"
+        />
 
+        <button onclick="searchParcel()" style="width: 100%; margin-top: 5px">
+          Search Parcel
+        </button>
       <button onclick="openBuyersModal()">Manage Buyers</button>
       <button onclick="openSellersModal()">Manage Sellers</button>
       <button onclick="zoomIn()">Zoom In</button>
@@ -242,6 +251,56 @@
 
   <!-- Scripts -->
  <script>
+//function to search for a parcel by ID
+async function searchParcel() {
+              const input = document.getElementById("parcelInput").value.trim();
+
+              if (!input) {
+                alert("Please enter a Parcel ID.");
+                return;
+              }
+
+              try {
+                const res = await fetch(`http://localhost:5000/api/parcels/${input}`);
+                if (!res.ok) {
+                  throw new Error("Parcel not found");
+                }
+
+                const data = await res.json();
+
+                if (data.latitude && data.longitude) {
+                  // Zoom to parcel location
+                  map.setCenter({ lat: data.latitude, lng: data.longitude });
+                  map.setZoom(18);
+
+                  // Add marker for the parcel
+                  const marker = new google.maps.Marker({
+                    position: { lat: data.latitude, lng: data.longitude },
+                    map,
+                    title: `Parcel ${data.parcelId}`,
+                    icon: {
+                      url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                    },
+                  });
+
+                  const info = new google.maps.InfoWindow({
+                    content: `
+                <strong>Parcel ID:</strong> ${data.parcelId}<br>
+                <strong>County:</strong> ${data.county}
+              `,
+                  });
+
+                  marker.addListener("click", () => info.open(map, marker));
+                  info.open(map, marker);
+                } else {
+                  alert("Coordinates for this parcel are missing.");
+                }
+              } catch (err) {
+                console.error(err);
+                alert("Parcel not found or server error.");
+              }
+            }
+
   let map;
   const countyCoordinates = {
     "baringo": { lat: 0.4646, lng: 35.7436 },
