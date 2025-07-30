@@ -19,6 +19,17 @@ const baseCoords = {
   Kakamega: { lat: 0.2833, lng: 34.7500 }  
 };
 
+// Sample random names generator
+const sampleNames = [
+  "Alice Mwangi", "Brian Odhiambo", "Catherine Njeri", "David Kiptoo", "Emily Atieno",
+  "Fredrick Otieno", "Grace Wanjiku", "Henry Kariuki", "Irene Kemunto", "John Muthoni"
+];
+
+function generateRandomOwner() {
+  const name = sampleNames[Math.floor(Math.random() * sampleNames.length)];
+  const id = Math.floor(10000000 + Math.random() * 89999999); // 8-digit ID
+  return { name, id };
+}
 
 async function generateParcels() {
   try {
@@ -37,17 +48,21 @@ async function generateParcels() {
         const latOffset = (Math.random() - 0.5) * 0.02;
         const lngOffset = (Math.random() - 0.5) * 0.02;
 
+        const { name, id } = generateRandomOwner();
+
         parcels.push({
           parcelId,
           county,
           latitude: parseFloat((base.lat + latOffset).toFixed(6)),
-          longitude: parseFloat((base.lng + lngOffset).toFixed(6))
+          longitude: parseFloat((base.lng + lngOffset).toFixed(6)),
+          ownerName: name,
+          ownerId: id
         });
       }
     }
 
     await Parcel.insertMany(parcels);
-    console.log("✅ 120 parcels inserted successfully.");
+    console.log("✅ 120 parcels with owners inserted successfully.");
   } catch (err) {
     console.error("❌ Error inserting parcels:", err);
   } finally {

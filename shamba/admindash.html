@@ -4,137 +4,161 @@
   <meta charset="UTF-8">
   <title>Admin Dashboard - Track Lands</title>
   <style>
-    body, html {
-      height: 100%;
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #111;
-      color: #fff;
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
-    .container {
-      display: flex;
-      height: 100vh;
-      width: 100%;
-    }
-
-    .sidebar {
-      width: 300px;
-      background-color: #1e1e1e;
-      padding: 20px;
-      box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-    }
-
-    .hero-section {
-      margin-bottom: 20px;
-      border-bottom: 1px solid #444;
-      padding-bottom: 15px;
-    }
-
-    .hero-section h3 {
-      margin: 0 0 10px;
-    }
-
-    .hero-section img {
-      width: 100%;
-      max-width: 200px;
-      display: block;
-      margin: 10px 0;
-    }
-
-    .hero-section h2 {
-      margin-top: 15px;
-      font-size: 20px;
-      border-bottom: 1px solid #555;
-      padding-bottom: 5px;
-    }
-
-    select, button {
-      margin: 10px 0;
-      padding: 10px;
-      background-color: #333;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 15px;
-    }
-
-    button:hover, select:hover {
-      background-color: #444;
-    }
-
-    #map {
-      flex-grow: 1;
-      background-color: #222;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #999;
-      font-size: 24px;
-    }
-
-    /* Modals */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 10;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.7);
-    }
-
-    .modal-content {
-      background-color: #2c2c2c;
-      margin: 10% auto;
-      padding: 20px;
-      border: 1px solid #444;
-      width: 90%;
-      max-width: 500px;
-      color: white;
-      border-radius: 10px;
-    }
-
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .close:hover {
-      color: red;
-    }
-
-    /* Log Out Button */
-    .logout-btn {
-      margin-top: auto;
-      background-color: #c0392b;
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-      .sidebar {
-        width: 100%;
-        height: auto;
-      }
-      #map {
-        height: 300px;
-      }
-    }
-    #track-logo {
-  width: 500px;
-  margin-bottom: 20px;
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #0e0e0e;
+  color: #f5f5f5;
 }
+
+.container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+.sidebar {
+  width: 280px;
+  background: linear-gradient(180deg, #1c1c1c 0%, #111 100%);
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #333;
+}
+
+.hero-section {
+  margin-bottom: 30px;
+}
+
+.hero-section h3 {
+  font-weight: 400;
+  font-size: 14px;
+  color: #aaa;
+}
+
+.hero-section h2 {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 1px solid #444;
+  padding-bottom: 8px;
+}
+
+.hero-section img {
+  width: 100%;
+  margin: 10px 0;
+  border-radius: 8px;
+}
+
+select, input[type="text"], button {
+  width: 100%;
+  margin: 8px 0;
+  padding: 10px 12px;
+  background-color: #1f1f1f;
+  color: #eee;
+  border: 1px solid #333;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: background-color 0.2s ease;
+}
+
+button:hover, select:hover, input[type="text"]:hover {
+  background-color: #2a2a2a;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+.logout-btn {
+  margin-top: auto;
+  background-color: #c0392b;
+  border: none;
+}
+
+.logout-btn:hover {
+  background-color: #e74c3c;
+}
+.button-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: nowrap; /* 🔥 Prevent wrapping */
+}
+
+.button-row button {
+  flex: 1;
+  min-width: 0; /* 🧠 Helps fit into container even if text is long */
+}
+
+#map {
+  flex-grow: 1;
+  background-color: #1b1b1b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid #333;
+  border-radius: 0 0 0 12px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, 0.85);
+}
+
+.modal-content {
+  background-color: #222;
+  margin: 8% auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 500px;
+  border: 1px solid #444;
+  border-radius: 10px;
+  color: white;
+}
+
+.close {
+  float: right;
+  font-size: 24px;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #e74c3c;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+  }
+  #map {
+    height: 300px;
+  }
+}
+
+#track-logo {
+  width: 100%;
+  margin-bottom: 20px;
+  border-radius: 6px;
+}
+
+
   </style>
 </head>
 <body>
@@ -149,7 +173,7 @@
 
       <h3>Go To:</h3>
       <select id="countyDropdown" onchange="goToCounty()">
-        <option value="">-- Select County --</option>
+        <option value="">-- Search By County --</option>
          <option value="baringo">Baringo</option>
   <option value="bomet">Bomet</option>
   <option value="bungoma">Bungoma</option>
@@ -198,11 +222,26 @@
   <option value="wajir">Wajir</option>
   <option value="west pokot">West Pokot</option>
       </select>
-
+       
+      <input
+          type="text"
+          id="parcelInput"
+          placeholder="Search by Parcel ID"
+          style="width: 100%; padding: 8px; margin-top: 10px"
+        />
+     
+        <button onclick="searchParcel()"  style="width: 100%; margin-top: 5px">
+          Search Parcel
+        </button>
+        
+        <div class="button-row">
       <button onclick="openBuyersModal()">Manage Buyers</button>
       <button onclick="openSellersModal()">Manage Sellers</button>
+      </div>
+      <div class="button-row">
       <button onclick="zoomIn()">Zoom In</button>
       <button onclick="zoomOut()">Zoom Out</button>
+      </div>
       <button class="logout-btn" onclick="logout()">Log Out</button>
     </div>
 
@@ -243,6 +282,77 @@
   <!-- Scripts -->
  <script>
   let map;
+//function to search for a parcel by ID
+async function searchParcel() {
+        const parcelId = document.getElementById("parcelInput").value;
+
+        console.log("📦 Parcel ID entered:", parcelId); // Log 1
+
+        if (!parcelId) {
+          alert("Please enter a Parcel ID.");
+          return;
+        }
+
+        if (!map) {
+          console.error("❌ Map object is undefined."); // Log 2
+          alert("Map is not ready yet. Please wait.");
+          return;
+        } else {
+          console.log("🗺️ Map object exists:", map); // Log 3
+        }
+
+        fetch(`/api/parcels/${parcelId}`)
+          .then((response) => {
+            console.log("🌐 API Response Status:", response.status); // Log 4
+
+            if (!response.ok) {
+              throw new Error("Parcel not found");
+            }
+            return response.json();
+          })
+          .then((parcel) => {
+            console.log("📦 Parcel Fetched:", parcel); // Log 5
+
+            const lat = parcel.latitude;
+            const lng = parcel.longitude;
+
+            if (lat == null || lng == null) {
+              alert("Parcel does not have valid location data.");
+              return;
+            }
+
+            const center = { lat, lng };
+            console.log("📍 Center to zoom to:", center); // Log 6
+
+            map.setCenter(center);
+            map.setZoom(16);
+
+            const marker = new google.maps.Marker({
+              position: center,
+              map: map,
+              title: parcel.parcelId,
+            });
+
+            const infoWindow = new google.maps.InfoWindow({
+              content: `
+          <div>
+            <strong>Parcel ID:</strong> ${parcel.parcelId}<br>
+            <strong>County:</strong> ${parcel.county || "N/A"}<br>
+            <strong>Owner:</strong> ${parcel.ownerName || "N/A"}
+          </div>
+        `,
+            });
+
+            marker.addListener("mouseover", () => infoWindow.open(map, marker));
+            marker.addListener("mouseout", () => infoWindow.close());
+          })
+          .catch((error) => {
+            console.error("❌ Error fetching parcel:", error); // Log 7
+            alert("Failed to find parcel. Please try again.");
+          });
+      }
+
+ 
   const countyCoordinates = {
     "baringo": { lat: 0.4646, lng: 35.7436 },
     "bomet": { lat: -0.7821, lng: 35.3398 },
@@ -298,7 +408,8 @@
   function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
       center: { lat: -1.286389, lng: 36.817223 },
-      zoom: 7,
+      zoom: 6,
+      MapTypeId:'hybrid',
       styles: [
         {
           featureType: "all",
@@ -407,8 +518,9 @@
 
   generateDummySellers(); // Run once on load
 </script>
-<script async defer
+
+    <script async defer
   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBseZ25APvXF86V_ZciuACEPSLXaFQ82qI&callback=initMap">
-</script>
+     </script>
 </body>
 </html>
