@@ -253,12 +253,27 @@ button:active {
   
    <!-- Buyers Modal -->
   <div id="buyersModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeBuyersModal()">&times;</span>
-      <h2>Manage Buyers</h2>
-      <p>Here you can view, edit or remove buyer requests.</p>
-    </div>
+  <div class="modal-content">
+    <span class="close" onclick="closeBuyersModal()">&times;</span>
+    <h2>Manage Buyers</h2>
+    <p>Here you can view, edit or remove buyer requests.</p>
+
+    <table id="buyersTable" border="1" style="width:100%; margin-top: 10px;">
+      <thead>
+        <tr>
+          <th>Parcel ID</th>
+          <th>Offer Price (KES)</th>
+          <th>Phone Number</th>
+          <th>Submitted At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Offers will be inserted here dynamically -->
+      </tbody>
+    </table>
   </div>
+</div>
+
 
  <!-- Manage Sellers Modal -->
 <div id="manageSellersModal" class="modal">
@@ -517,6 +532,42 @@ async function searchParcel() {
   }
 
   generateDummySellers(); // Run once on load
+
+  async function loadBuyerOffers() {
+    try {
+      const res = await fetch("/api/offers");
+      const offers = await res.json();
+
+      const tbody = document.querySelector("#buyersTable tbody");
+      tbody.innerHTML = "";
+
+      offers.forEach(offer => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${offer.parcelId}</td>
+          <td>${offer.offerPrice.toLocaleString()}</td>
+          <td>${offer.phoneNumber}</td>
+          <td>${new Date(offer.createdAt).toLocaleString()}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    } catch (err) {
+      console.error("Failed to load buyer offers:", err);
+    }
+  }
+
+  function openBuyersModal() {
+    document.getElementById("buyersModal").style.display = "block";
+    loadBuyerOffers(); // Load offers each time modal is opened
+  }
+
+  function closeBuyersModal() {
+    document.getElementById("buyersModal").style.display = "none";
+  }
+
+
+
+
 </script>
 
     <script async defer
