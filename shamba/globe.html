@@ -287,11 +287,13 @@
         <button onclick="searchParcel()" style="width: 100%; margin-top: 5px">
           Search Parcel
         </button>
-
-        <button onclick="openBuyModal()">Buy Land</button>
-        <!-- Sell Land Button -->
-        <button onclick="openSellModal()">Sell Land</button>
-
+        <div class="sidebar-row">
+          <button onclick="openBuyModal()" class="half-button">Buy Land</button>
+          <!-- Sell Land Button -->
+          <button onclick="openSellModal()" class="half-button">
+            Sell Land
+          </button>
+        </div>
         <!-- Sell Land Modal -->
         <div id="sellModal" class="modal">
           <div class="modal-content">
@@ -321,12 +323,15 @@
               id="sellSize"
               style="width: 100%; padding: 8px; margin-bottom: 10px"
             />
+
             <button onclick="submitSell()">Submit</button>
             <button onclick="closeSellModal()">Cancel</button>
           </div>
         </div>
-        <button onclick="zoomIn()">Zoom In</button>
-        <button onclick="zoomOut()">Zoom Out</button>
+        <div class="sidebar-row">
+          <button onclick="zoomIn()" class="half-button">Zoom In</button>
+          <button onclick="zoomOut()" class="half-button">Zoom Out</button>
+        </div>
         <!-- Admin Login & Support Buttons -->
         <div
           style="
