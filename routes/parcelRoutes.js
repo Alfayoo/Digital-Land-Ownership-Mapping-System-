@@ -137,28 +137,44 @@ router.post(
 // @desc    Get all land parcels (with optional search and filter)
 // @access  Private (Accessible by all authenticated users)
 router.get('/', async (req, res) => {
-    try {
-        const { search, status } = req.query;
-        let query = {};
+  try {
+    const { search, status } = req.query;
+    let query = {};
 
-        if (search) {
-            query.$or = [
-                { parcelId: { $regex: search, $options: 'i' } },
-                { 'ownerDetails.ownerName': { $regex: search, $options: 'i' } },
-                { 'ownerDetails.idNumber': { $regex: search, $options: 'i' } }
-            ];
-        }
-        if (status) {
-            query.status = status;
-        }
-
-        const parcels = await LandParcel.find(query).populate('registeredBy', 'username role email');
-        res.json(parcels);
-    } catch (error) {
-        console.error('Error fetching parcels:', error.message);
-        res.status(500).json({ message: 'Server error fetching parcels' });
+    if (search) {
+      query.$or = [
+        { parcelId: { $regex: search, $options: 'i' } },
+        { 'ownerDetails.ownerName': { $regex: search, $options: 'i' } },
+        { 'ownerDetails.idNumber': { $regex: search, $options: 'i' } }
+      ];
     }
+
+    if (status) {
+      query.status = status;
+    }
+
+    const parcels = await LandParcel.find(query).populate('registeredBy', 'username role email');
+
+    // Mask owner ID in each parcel
+    const maskedParcels = parcels.map(parcel => {
+      const maskedId = parcel.ownerDetails?.idNumber?.replace(/^(\d{2})\d+(\d{2})$/, '$1****$2');
+      
+      return {
+        ...parcel.toObject(),
+        ownerDetails: {
+          ...parcel.ownerDetails,
+          idNumber: maskedId
+        }
+      };
+    });
+
+    res.json(maskedParcels);
+  } catch (error) {
+    console.error('Error fetching parcels:', error.message);
+    res.status(500).json({ message: 'Server error fetching parcels' });
+  }
 });
+
 
 // @route   POST /api/parcels/:id/documents
 // @desc    Add new documents to an existing parcel

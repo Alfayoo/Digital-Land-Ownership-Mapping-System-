@@ -5,6 +5,8 @@ const parcelSchema = new mongoose.Schema({
   county: String,
   latitude: Number,
   longitude: Number,
+  ownerName: String,         
+  ownerIdNumber: String     
 });
 
 module.exports = mongoose.model("Parcel", parcelSchema);
