@@ -502,9 +502,9 @@ async function searchParcel() {
         };
         for (let j = 1; j <= 10; j++) {
           seller.lands.push({
-            title: 'Land ${j}',
-            size: '${Math.floor(Math.random() * 10) + 1} acres',
-            price: 'KSh ${Math.floor(Math.random() * 900000) + 100000}'
+            title: `Land ${j}`,
+            size: `${Math.floor(Math.random() * 10) + 1} acres`,
+            price: `KSh ${Math.floor(Math.random() * 900000) + 100000}`
           });
         }
         sellers.push(seller);
