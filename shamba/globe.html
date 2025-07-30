@@ -320,10 +320,11 @@
           <div class="modal-content">
             <span class="close" onclick="closeModal('sellModal')">&times;</span>
             <h2>Sell Land</h2>
-            <form id="sellForm">
+            <form id="sellForm" enctype="multipart/form-data">
               <label for="sellParcel">Parcel ID</label>
               <input
                 id="sellParcel"
+                name="parcelId"
                 type="text"
                 placeholder="e.g., KE-P1234"
                 required
@@ -332,6 +333,7 @@
               <label for="sellPhone">Phone Number</label>
               <input
                 id="sellPhone"
+                name="phone"
                 type="tel"
                 placeholder="e.g., 0712345678"
                 required
@@ -342,6 +344,7 @@
               <label for="landSize">Land Size (in acres)</label>
               <input
                 id="landSize"
+                name="size"
                 type="number"
                 step="0.01"
                 placeholder="e.g., 2.5"
@@ -351,10 +354,32 @@
               <label for="landValue">Value (KES)</label>
               <input
                 id="landValue"
+                name="value"
                 type="number"
                 placeholder="e.g., 500000"
                 required
               />
+
+              <!-- Upload Title Deed -->
+              <label for="titleDeed">Upload Title Deed (PDF or Image)</label>
+              <input
+                id="titleDeed"
+                name="titleDeed"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                required
+              />
+              <button type="button" id="uploadBtn">Upload</button>
+              <!-- Upload National ID -->
+              <label for="nationalId">Upload National ID (PDF or Image)</label>
+              <input
+                id="nationalId"
+                name="nationalId"
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                required
+              />
+              <button type="button" id="uploadBtn">Upload</button>
 
               <button type="submit">Post for Sale</button>
               <button type="button" onclick="closeSellModal()">Cancel</button>
@@ -642,6 +667,44 @@
         map.setZoom(map.getZoom() - 1);
       }
     </script>
+
+    <script>
+  document.getElementById("uploadBtn").addEventListener("click", async () => {
+    const fileInput = document.getElementById("titleDeed");
+
+    if (!fileInput || fileInput.files.length === 0) {
+      alert("Please select a file to upload.");
+      return;
+    }
+
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+      console.log("Uploaded file URL:", data.url);
+      alert("Upload successful: " + data.url);
+
+      // Optional: Save the URL to use later (e.g. in form submission)
+      // document.getElementById("uploadedUrl").value = data.url;
+
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("An error occurred during upload. Check the console.");
+    }
+  });
+</script>
+
     <script>
       function openSellModal() {
         document.getElementById("sellModal").style.display = "flex";
@@ -691,6 +754,35 @@
       function closeModal(id) {
         document.getElementById(id).style.display = "none";
       }
+
+      document
+        .getElementById("sellForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const form = e.target;
+          const formData = new FormData(form);
+
+          try {
+            const res = await fetch("/upload", {
+              method: "POST",
+              body: formData,
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+              alert("Land posted successfully!");
+              closeSellModal(); // Optionally close modal
+              form.reset();
+            } else {
+              alert("Upload failed: " + (data.error || "Unknown error"));
+            }
+          } catch (err) {
+            console.error(err);
+            alert("An error occurred while uploading");
+          }
+        });
     </script>
     <script
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBK1h-QvnaLDOvRqz9cRDrCShpDAMzae-U&callback=initMap"

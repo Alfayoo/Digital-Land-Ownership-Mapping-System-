@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGO_URI;
 const UPLOAD_FOLDER = process.env.UPLOAD_FOLDER || 'uploads';
 const offersRoutes = require("./routes/offers");
+const uploadRoute = require('./routes/upload');
 // --- MongoDB Connection ---
 mongoose.connect(MONGODB_URI)
     .then(() => console.log('MongoDB connected successfully'))
@@ -36,6 +37,7 @@ app.use(cors(corsOptions));
 // Serve static files from the 'uploads' folder for uploaded documents
 app.use('/api/files/documents', express.static(path.join(__dirname, UPLOAD_FOLDER)));
 app.use("/api/offers", offersRoutes);
+app.use('/api', uploadRoute);
 // Create uploads directory if it doesn't exist (important for Multer)
 const uploadsDirPath = path.join(__dirname, UPLOAD_FOLDER);
 if (!fs.existsSync(uploadsDirPath)) {
