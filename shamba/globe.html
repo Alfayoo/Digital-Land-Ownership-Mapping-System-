@@ -329,6 +329,8 @@
                 placeholder="e.g., KE-P1234"
                 required
               />
+              <label for="fullName">Full Name</label>
+              <input type="text" id="fullName" name="fullName" required />
 
               <label for="sellPhone">Phone Number</label>
               <input
@@ -369,7 +371,7 @@
                 accept=".pdf,.jpg,.jpeg,.png"
                 required
               />
-              <button type="button" id="uploadBtn">Upload</button>
+
               <!-- Upload National ID -->
               <label for="nationalId">Upload National ID (PDF or Image)</label>
               <input
@@ -379,9 +381,7 @@
                 accept=".pdf,.jpg,.jpeg,.png"
                 required
               />
-              <button type="button" id="uploadBtn">Upload</button>
-
-              <button type="submit">Post for Sale</button>
+              <button id="sendOfferBtn" type="submit">Post for Sale</button>
               <button type="button" onclick="closeSellModal()">Cancel</button>
             </form>
           </div>
@@ -669,41 +669,89 @@
     </script>
 
     <script>
-  document.getElementById("uploadBtn").addEventListener("click", async () => {
-    const fileInput = document.getElementById("titleDeed");
+      document
+        .getElementById("sendOfferBtn")
+        .addEventListener("click", async () => {
+          const titleDeedFile = document.getElementById("titleDeed").files[0];
+          const idFile = document.getElementById("nationalId").files[0];
 
-    if (!fileInput || fileInput.files.length === 0) {
-      alert("Please select a file to upload.");
-      return;
-    }
+          const fullName = document.getElementById("fullName").value;
+          const phoneNumber = document.getElementById("sellPhone").value;
+          const parcelId = document.getElementById("sellParcel").value;
+          const landSize = document.getElementById("landSize").value;
 
-    const file = fileInput.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
+          if (
+            !titleDeedFile ||
+            !idFile ||
+            !fullName ||
+            !phoneNumber ||
+            !parcelId ||
+            !landSize
+          ) {
+            alert("All fields are required");
+            return;
+          }
 
-    try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+          try {
+            // Upload Title Deed
+            const deedForm = new FormData();
+            deedForm.append("file", titleDeedFile);
 
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
+            const deedRes = await fetch("/api/upload", {
+              method: "POST",
+              body: deedForm,
+            });
 
-      const data = await response.json();
-      console.log("Uploaded file URL:", data.url);
-      alert("Upload successful: " + data.url);
+            const deedData = await deedRes.json();
+            console.log("Title deed uploaded:", deedData);
 
-      // Optional: Save the URL to use later (e.g. in form submission)
-      // document.getElementById("uploadedUrl").value = data.url;
+            // Upload ID Document
+            const idForm = new FormData();
+            idForm.append("file", idFile);
 
-    } catch (error) {
-      console.error("Upload error:", error);
-      alert("An error occurred during upload. Check the console.");
-    }
-  });
-</script>
+            const idRes = await fetch("/api/upload", {
+              method: "POST",
+              body: idForm,
+            });
+
+            const idData = await idRes.json();
+            console.log("ID uploaded:", idData);
+
+            // ✅ Trust the uploads succeeded
+            alert("Files uploaded successfully!");
+
+            // Now continue to submit the offer data
+            const formData = {
+              fullName,
+              phoneNumber,
+              parcelId,
+              landSize,
+              titleDeedUrl: deedData.url,
+              idUrl: idData.url,
+            };
+
+            const submitRes = await fetch("/api/submitOffer", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            });
+
+            if (!submitRes.ok) {
+              const errorText = await submitRes.text();
+              throw new Error("Submission failed: " + errorText);
+            }
+
+            alert("Offer submitted successfully!");
+          } catch (err) {
+            console.error("Offer Submission Error:", err);
+            alert(
+              "Something went wrong:\n" + (err.message || JSON.stringify(err))
+            );
+          }
+        });
+    </script>
 
     <script>
       function openSellModal() {
@@ -764,7 +812,7 @@
           const formData = new FormData(form);
 
           try {
-            const res = await fetch("/upload", {
+            const res = await fetch("/api/upload", {
               method: "POST",
               body: formData,
             });
