@@ -281,57 +281,78 @@ button:active {
 
   <!-- Scripts -->
  <script>
+  let map;
 //function to search for a parcel by ID
 async function searchParcel() {
-              const input = document.getElementById("parcelInput").value.trim();
+        const parcelId = document.getElementById("parcelInput").value;
 
-              if (!input) {
-                alert("Please enter a Parcel ID.");
-                return;
-              }
+        console.log("📦 Parcel ID entered:", parcelId); // Log 1
 
-              try {
-                const res = await fetch(`http://localhost:5000/api/parcels/${input}`);
-                if (!res.ok) {
-                  throw new Error("Parcel not found");
-                }
+        if (!parcelId) {
+          alert("Please enter a Parcel ID.");
+          return;
+        }
 
-                const data = await res.json();
+        if (!map) {
+          console.error("❌ Map object is undefined."); // Log 2
+          alert("Map is not ready yet. Please wait.");
+          return;
+        } else {
+          console.log("🗺️ Map object exists:", map); // Log 3
+        }
 
-                if (data.latitude && data.longitude) {
-                  // Zoom to parcel location
-                  map.setCenter({ lat: data.latitude, lng: data.longitude });
-                  map.setZoom(18);
+        fetch(`/api/parcels/${parcelId}`)
+          .then((response) => {
+            console.log("🌐 API Response Status:", response.status); // Log 4
 
-                  // Add marker for the parcel
-                  const marker = new google.maps.Marker({
-                    position: { lat: data.latitude, lng: data.longitude },
-                    map,
-                    title: `Parcel ${data.parcelId}`,
-                    icon: {
-                      url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                    },
-                  });
+            if (!response.ok) {
+              throw new Error("Parcel not found");
+            }
+            return response.json();
+          })
+          .then((parcel) => {
+            console.log("📦 Parcel Fetched:", parcel); // Log 5
 
-                  const info = new google.maps.InfoWindow({
-                    content: `
-                <strong>Parcel ID:</strong> ${data.parcelId}<br>
-                <strong>County:</strong> ${data.county}
-              `,
-                  });
+            const lat = parcel.latitude;
+            const lng = parcel.longitude;
 
-                  marker.addListener("click", () => info.open(map, marker));
-                  info.open(map, marker);
-                } else {
-                  alert("Coordinates for this parcel are missing.");
-                }
-              } catch (err) {
-                console.error(err);
-                alert("Parcel not found or server error.");
-              }
+            if (lat == null || lng == null) {
+              alert("Parcel does not have valid location data.");
+              return;
             }
 
-  let map;
+            const center = { lat, lng };
+            console.log("📍 Center to zoom to:", center); // Log 6
+
+            map.setCenter(center);
+            map.setZoom(16);
+
+            const marker = new google.maps.Marker({
+              position: center,
+              map: map,
+              title: parcel.parcelId,
+            });
+
+            const infoWindow = new google.maps.InfoWindow({
+              content: `
+          <div>
+            <strong>Parcel ID:</strong> ${parcel.parcelId}<br>
+            <strong>County:</strong> ${parcel.county || "N/A"}<br>
+            <strong>Owner:</strong> ${parcel.ownerName || "N/A"}
+          </div>
+        `,
+            });
+
+            marker.addListener("mouseover", () => infoWindow.open(map, marker));
+            marker.addListener("mouseout", () => infoWindow.close());
+          })
+          .catch((error) => {
+            console.error("❌ Error fetching parcel:", error); // Log 7
+            alert("Failed to find parcel. Please try again.");
+          });
+      }
+
+ 
   const countyCoordinates = {
     "baringo": { lat: 0.4646, lng: 35.7436 },
     "bomet": { lat: -0.7821, lng: 35.3398 },
