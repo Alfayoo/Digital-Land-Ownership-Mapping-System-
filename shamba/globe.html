@@ -201,7 +201,6 @@
     </style>
   </head>
   <body>
-    <!-- Loader -->
     <div id="loader">
       <img
         src="Screenshot 2025-07-27 210037.png"
@@ -289,15 +288,13 @@
         </button>
         <div class="sidebar-row">
           <button onclick="openBuyModal()" class="half-button">Buy Land</button>
-          <!-- Sell Land Button -->
           <button onclick="openSellModal()" class="half-button">
             Sell Land
           </button>
         </div>
-        <!-- Sell Land Modal -->
         <div id="sellModal" class="modal">
           <div class="modal-content">
-            <span class="close" onclick="closeSellModal()">&times;</span>
+            <span class="close" onclick="closeSellModal()">×</span>
             <h2>Sell Land</h2>
             <input
               type="text"
@@ -332,7 +329,6 @@
           <button onclick="zoomIn()" class="half-button">Zoom In</button>
           <button onclick="zoomOut()" class="half-button">Zoom Out</button>
         </div>
-        <!-- Admin Login & Support Buttons -->
         <div
           style="
             position: absolute;
@@ -343,7 +339,7 @@
           "
         >
           <button
-            onclick="location.href='LoginAdmin.html'"
+            id="goToAdminButton"
             style="
               margin-bottom: 10px;
               padding: 8px 20px;
@@ -381,6 +377,7 @@
         }, 2500); // Adjust duration (2.5 seconds)
       });
     </script>
+
     <script>
       let map;
 
@@ -731,7 +728,6 @@
       }
     </script>
 
-    <!-- Replace this API key with your own for production use -->
     <script
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBK1h-QvnaLDOvRqz9cRDrCShpDAMzae-U&callback=initMap"
       async
@@ -742,7 +738,6 @@
       >
     </script>
 
-    <!-- Support Modal -->
     <div
       id="supportModal"
       style="
@@ -798,6 +793,16 @@
           closeSupportModal();
         }
       };
+      // Moved this script block to ensure the button exists when the script runs
+      const goToAdminButton = document.getElementById('goToAdminButton');
+
+      if (goToAdminButton) { // Check if the button exists
+          goToAdminButton.addEventListener('click', () => {
+              window.location.href = 'loginAdmin.html';
+          });
+      } else {
+          console.error("Button with ID 'goToAdminButton' not found!");
+      }
     </script>
   </body>
 </html>
