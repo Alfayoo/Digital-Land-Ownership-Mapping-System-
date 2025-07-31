@@ -26,7 +26,6 @@ mongoose.connect(MONGODB_URI)
 app.use(express.json()); // Body parser for JSON requests
 app.use(express.urlencoded({ extended: true })); // Body parser for URL-encoded requests
 
-// Configure CORS (Cross-Origin Resource Sharing)
 // Since your frontend is served from the same origin as the backend, this is mostly for completeness.
 const corsOptions = {
     origin: process.env.FRONTEND_URL, // This should be http://localhost:5000
