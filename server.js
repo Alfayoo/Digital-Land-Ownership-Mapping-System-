@@ -1,10 +1,10 @@
 // dloms_project/backend/server.js
-require('dotenv').config(); // Load environment variables from .env at the very top
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs'); // Node.js built-in file system module
+const fs = require('fs'); 
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -19,16 +19,16 @@ mongoose.connect(MONGODB_URI)
     .then(() => console.log('MongoDB connected successfully'))
     .catch(err => {
         console.error('MongoDB connection error:', err.message);
-        process.exit(1); // Exit if DB connection fails
+        process.exit(1); 
     });
 
 // --- Middleware ---
-app.use(express.json()); // Body parser for JSON requests
-app.use(express.urlencoded({ extended: true })); // Body parser for URL-encoded requests
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); 
 
-// Since your frontend is served from the same origin as the backend, this is mostly for completeness.
+
 const corsOptions = {
-    origin: process.env.FRONTEND_URL, // This should be http://localhost:5000
+    origin: process.env.FRONTEND_URL, 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204
@@ -50,22 +50,22 @@ if (!fs.existsSync(uploadsDirPath)) {
 
 // These MUST be defined BEFORE any static file serving or catch-all routes.
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/parcels', require('./routes/parcelRoutes')); // Handles land parcel CRUD operations
+app.use('/api/parcels', require('./routes/parcelRoutes')); 
 
 // --- Serve Static Frontend Files from the 'shamba' directory ---
-// This section is what enables your browser to load your HTML, CSS, JS files.
-// It comes AFTER your API routes.
+
+
 
 // Define the path to your 'shamba' frontend directory (assumes it's in the project root)
 const frontendDir = path.join(__dirname, 'shamba');
-app.use(express.static(frontendDir)); // Serve static assets (CSS, JS, images) from 'shamba'
+app.use(express.static(frontendDir)); 
 
 // Catch-all route: For any GET request that hasn't matched an API route or a static file,
-// serve the loginAdmin.html. This makes it your application's entry point.
+
 app.get('*', (req, res) => {
     res.sendFile(path.resolve(frontendDir, 'globe.html'));
 });
-// --- END Frontend Serving ---
+
 
 // Global Error Handling Middleware (must be the very last `app.use`)
 app.use((err, req, res, next) => {
@@ -81,5 +81,5 @@ app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`MongoDB URI: ${MONGODB_URI}`);
     console.log(`CORS allowed origin: ${process.env.FRONTEND_URL}`);
-    console.log(`Frontend files served from: ${frontendDir}`); // Confirm frontend path
+    console.log(`Frontend files served from: ${frontendDir}`); 
 });
