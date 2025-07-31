@@ -432,6 +432,74 @@
     </script>
     <script>
       let map;
+      async function searchParcel() {
+        const parcelId = document.getElementById("parcelInput").value;
+
+        console.log("📦 Parcel ID entered:", parcelId);
+
+        if (!parcelId) {
+          alert("Please enter a Parcel ID.");
+          return;
+        }
+
+        if (!map) {
+          console.error("❌ Map object is undefined.");
+          alert("Map is not ready yet. Please wait.");
+          return;
+        } else {
+          console.log("🗺️ Map object exists:", map);
+        }
+
+        try {
+          const response = await fetch(`/api/parcels/${parcelId}`);
+          console.log("🌐 API Response Status:", response.status);
+
+          if (!response.ok) {
+            throw new Error("Parcel not found");
+          }
+
+          const parcel = await response.json();
+          console.log("📦 Parcel Fetched:", parcel);
+
+          const lat = parcel.latitude;
+          const lng = parcel.longitude;
+
+          if (lat == null || lng == null) {
+            alert("Parcel does not have valid location data.");
+            return;
+          }
+
+          const center = { lat, lng };
+          console.log("📍 Center to zoom to:", center);
+
+          map.setCenter(center);
+          map.setZoom(16);
+
+          const marker = new google.maps.Marker({
+            position: center,
+            map: map,
+            title: parcel.parcelId,
+          });
+
+          const infoWindow = new google.maps.InfoWindow({
+            content: `
+          <div>
+            <strong>Parcel ID:</strong> ${parcel.parcelId}<br>
+            <strong>County:</strong> ${parcel.county || "N/A"}<br>
+            <strong>Owner:</strong> ${parcel.ownerName || "N/A"}
+          </div>
+        `,
+          });
+
+          marker.addListener("mouseover", () => infoWindow.open(map, marker));
+          marker.addListener("mouseout", () => infoWindow.close());
+        } catch (error) {
+          console.error("❌ Error fetching parcel:", error);
+          alert("Failed to find parcel. Please try again.");
+        }
+      }
+
+      
       const greenIcon = {
         url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
       };
@@ -640,16 +708,73 @@
       }
 
       function searchParcel() {
-        const input = document.getElementById("parcelInput").value.trim();
-        if (!input) return alert("Please enter a Parcel ID.");
+  const input = document.getElementById("parcelInput").value.trim();
+  if (!input) return alert("Please enter a Parcel ID.");
 
-        const result = parcelMarkers[input];
-        if (!result) return alert("Parcel not found.");
+  const result = parcelMarkers[input];
 
-        map.setCenter(result.pos);
-        map.setZoom(18);
-        google.maps.event.trigger(result.marker, "click");
-      }
+  if (result) {
+    map.setCenter(result.pos);
+    map.setZoom(18);
+    google.maps.event.trigger(result.marker, "click");
+  } else {
+    // 🔄 Parcel not found locally – fallback to server
+    console.log("📦 Not found locally. Fetching from server:", input);
+
+    fetch(`/api/parcels/${input}`)
+      .then((response) => {
+        console.log("🌐 API Response Status:", response.status);
+        if (!response.ok) throw new Error("Parcel not found on server");
+        return response.json();
+      })
+      .then((parcel) => {
+        console.log("📦 Parcel from server:", parcel);
+
+        const lat = parcel.latitude;
+        const lng = parcel.longitude;
+
+        if (lat == null || lng == null) {
+          alert("Parcel does not have valid location data.");
+          return;
+        }
+
+        const position = { lat, lng };
+
+        // Add new marker to map
+        const marker = new google.maps.Marker({
+          position,
+          map,
+          title: parcel.parcelId,
+        });
+
+        // Add info window
+        const infoWindow = new google.maps.InfoWindow({
+          content: `
+            <div>
+              <strong>Parcel ID:</strong> ${parcel.parcelId}<br>
+              <strong>County:</strong> ${parcel.county || "N/A"}<br>
+              <strong>Owner:</strong> ${parcel.ownerName || "N/A"}
+            </div>
+          `,
+        });
+
+        marker.addListener("mouseover", () => infoWindow.open(map, marker));
+        marker.addListener("mouseout", () => infoWindow.close());
+
+        // Center and zoom to this new parcel
+        map.setCenter(position);
+        map.setZoom(16);
+
+        // Optionally: store the new marker in parcelMarkers for future searches
+        parcelMarkers[input] = { pos: position, marker };
+      })
+      .catch((error) => {
+        console.error("❌ Error fetching parcel from server:", error);
+        alert("Parcel not found.");
+      });
+  }
+}
+
 
       function goToCounty() {
         const selected = document.getElementById("countyDropdown").value;

@@ -542,29 +542,32 @@ async function searchParcel() {
   }
 
   generateDummySellers(); // Run once on load
+async function loadBuyerOffers() {
+  try {
+    const res = await fetch("/api/offers");
+    const offers = await res.json();
 
-  async function loadBuyerOffers() {
-    try {
-      const res = await fetch("/api/offers");
-      const offers = await res.json();
+    const tbody = document.querySelector("#buyersTable tbody");
+    tbody.innerHTML = "";
 
-      const tbody = document.querySelector("#buyersTable tbody");
-      tbody.innerHTML = "";
+    offers.forEach(offer => {
+      const row = document.createElement("tr");
+     row.innerHTML = `
+  <td>${offer.parcelId}</td>
+  <td>${offer.offerPrice.toLocaleString()}</td>
+  <td>${offer.phoneNumber}</td>
+  <td>${new Date(offer.createdAt).toLocaleString()}</td>
+  <td>
+    <button onclick="removeOffer('${offer._id}')">Remove</button>
+  </td>
+`;
 
-      offers.forEach(offer => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${offer.parcelId}</td>
-          <td>${offer.offerPrice.toLocaleString()}</td>
-          <td>${offer.phoneNumber}</td>
-          <td>${new Date(offer.createdAt).toLocaleString()}</td>
-        `;
-        tbody.appendChild(row);
-      });
-    } catch (err) {
-      console.error("Failed to load buyer offers:", err);
-    }
+      tbody.appendChild(row);
+    });
+  } catch (err) {
+    console.error("Failed to load buyer offers:", err);
   }
+}
 
   function openBuyersModal() {
     document.getElementById("buyersModal").style.display = "block";
@@ -576,6 +579,24 @@ async function searchParcel() {
   }
 
 
+
+//function to handle removing an offer
+async function removeOffer(id) {
+  if (!confirm("Are you sure you want to remove this offer?")) return;
+
+  try {
+    const res = await fetch(`/api/offers/${id}`, {
+      method: "DELETE",
+    });
+
+    const data = await res.json();
+    alert(data.message);
+    loadBuyerOffers(); // Refresh table
+  } catch (err) {
+    console.error("Error deleting offer:", err);
+    alert("Failed to delete offer.");
+  }
+}
 
 
 </script>
