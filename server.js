@@ -48,7 +48,7 @@ if (!fs.existsSync(uploadsDirPath)) {
     fs.mkdirSync(uploadsDirPath, { recursive: true });
 }
 
-// --- API Routes ---
+
 // These MUST be defined BEFORE any static file serving or catch-all routes.
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/parcels', require('./routes/parcelRoutes')); // Handles land parcel CRUD operations
