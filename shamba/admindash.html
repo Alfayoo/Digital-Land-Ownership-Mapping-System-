@@ -94,6 +94,13 @@ button:active {
   flex: 1;
   min-width: 0; /* 🧠 Helps fit into container even if text is long */
 }
+.offer-card {
+  background-color: #2c2c2c;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
 
 #map {
   flex-grow: 1;
@@ -118,7 +125,7 @@ button:active {
 }
 
 .modal-content {
-  background-color: #222;
+  background-color: #1e1e1e;
   margin: 8% auto;
   padding: 20px;
   width: 90%;
@@ -276,14 +283,17 @@ button:active {
 
 
  <!-- Manage Sellers Modal -->
-<div id="manageSellersModal" class="modal">
+<!-- Sellers Modal -->
+<div id="sellersModal" class="modal offer-card">
   <div class="modal-content">
-    <span class="close" onclick="closeModal('manageSellersModal')">&times;</span>
+    <span class="close" onclick="closeSellersModal()">&times;</span>
     <h2>Manage Sellers</h2>
+    <p>Here you can view, verify or remove land listings.</p>
 
     <div id="sellerList" style="max-height: 400px; overflow-y: auto; margin-top: 20px;"></div>
   </div>
 </div>
+
 
   <!-- Sellers Modal -->
   <div id="sellersModal" class="modal">
@@ -569,6 +579,53 @@ async function searchParcel() {
 
 
 </script>
+
+<script>
+  async function openSellersModal() {
+    document.getElementById("sellersModal").style.display = "block";
+    await loadSellerOffers(); // Load offers when modal opens
+  }
+
+  function closeSellersModal() {
+    document.getElementById("sellersModal").style.display = "none";
+  }
+
+  async function loadSellerOffers() {
+    const container = document.getElementById("sellerList");
+    container.innerHTML = "<p>Loading offers...</p>";
+
+    try {
+      const response = await fetch("/api/offers");
+      const offers = await response.json();
+
+      container.innerHTML = ""; // Clear loading message
+
+      if (offers.length === 0) {
+        container.innerHTML = "<p>No seller offers found.</p>";
+        return;
+      }
+
+      offers.forEach(offer => {
+        const offerDiv = document.createElement("div");
+        offerDiv.classList.add("offer-card");
+        offerDiv.innerHTML = `
+          <strong>Name:</strong> ${offer.fullName}<br>
+          <strong>Phone:</strong> ${offer.phoneNumber}<br>
+          <strong>Parcel ID:</strong> ${offer.parcelId}<br>
+          <strong>Land Size:</strong> ${offer.landSize}<br>
+          <strong>Title Deed:</strong> <a href="${offer.titleDeedUrl}" target="_blank">View</a><br>
+          <strong>ID:</strong> <a href="${offer.idUrl}" target="_blank">View</a><br>
+          <hr>
+        `;
+        container.appendChild(offerDiv);
+      });
+    } catch (err) {
+      console.error("Error fetching seller offers:", err);
+      container.innerHTML = "<p>Failed to load offers. Please try again later.</p>";
+    }
+  }
+</script>
+
 
     <script async defer
   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBseZ25APvXF86V_ZciuACEPSLXaFQ82qI&callback=initMap">
