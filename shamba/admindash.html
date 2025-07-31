@@ -595,7 +595,7 @@ async function searchParcel() {
     container.innerHTML = "<p>Loading offers...</p>";
 
     try {
-      const response = await fetch("/api/offers");
+      const response = await fetch("/api/sellers");
       const offers = await response.json();
 
       container.innerHTML = ""; // Clear loading message

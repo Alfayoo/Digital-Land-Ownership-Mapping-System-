@@ -1,22 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
+const Seller = require("../models/Seller");
 
-// Optional: create a Seller model if you haven't yet
-const SellerSchema = new mongoose.Schema({
-  fullName: String,
-  phoneNumber: String,
-  parcelId: String,
-  landSize: String,
-  titleDeedUrl: String,
-  idUrl: String,
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
 
-const Seller = mongoose.model("Seller", SellerSchema);
 
 // POST /api/submitOffer
 router.post("/", async (req, res) => {
